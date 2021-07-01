@@ -78,6 +78,7 @@ class BitcoinMainnet(AbstractNet):
     ADDRTYPE_P2CS = 21
     ADDRTYPE_P2CS2 = 36
     SEGWIT_HRP = "nv"
+    BOLT11_HRP = SEGWIT_HRP
     GENESIS = "00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a"
     DEFAULT_PORTS = {'t': '40001', 's': '40002'}
     DEFAULT_SERVERS = read_json('servers.json', {})
@@ -119,6 +120,7 @@ class BitcoinTestnet(AbstractNet):
     ADDRTYPE_P2CS = 8
     ADDRTYPE_P2CS2 = 32
     SEGWIT_HRP = "nv"
+    BOLT11_HRP = SEGWIT_HRP
     GENESIS = "0000ca20010727d0fdf6343bc233ac5a5eb44631c89c1722b27c15017dbc2902"
     DEFAULT_PORTS = {'t': '50001', 's': '50002'}
     DEFAULT_SERVERS = read_json('servers_testnet.json', {})

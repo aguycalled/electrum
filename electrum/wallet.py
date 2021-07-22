@@ -3141,9 +3141,12 @@ class Voting_Wallet(Simple_Deterministic_Wallet):
 
             return address
 
+    def derive_pubkeys(self, c, i):
+        return self.keystore.derive_pubkey(2, 0).hex()
 
-        def derive_pubkeys(self, c, i):
-            return self.keystore.derive_pubkey(2, 0)
+    def derive_address(self, for_change: int, n: int) -> str:
+        pubkeys = self.derive_pubkeys(2, 0)
+        return self.pubkeys_to_address(pubkeys)
 
 
 class Cold_Staking_Wallet(Simple_Deterministic_Wallet):

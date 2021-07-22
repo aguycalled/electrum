@@ -609,7 +609,7 @@ class BaseWizard(Logger):
     def on_restore_bip43(self, root_seed):
         def f(derivation, script_type):
             derivation = normalize_bip32_derivation(derivation)
-            self.run('on_bip43', seed, passphrase, derivation, script_type)
+            self.run('on_bip43', root_seed, derivation, script_type)
         if self.data['wallet_type'] == 'standard':
             def get_account_xpub(account_path):
                 root_node = BIP32Node.from_rootseed(root_seed, xtype="standard")

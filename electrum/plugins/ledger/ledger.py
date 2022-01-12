@@ -36,7 +36,7 @@ try:
     BTCHIP = True
     BTCHIP_DEBUG = False
 except ImportError as e:
-    if not (isinstance(e, ModuleNotFoundError) and e.name == 'btchip'):
+    if not (isinstance(e, ModuleNotFoundError) and e.name == 'navhip'):
         _logger.exception('error importing ledger plugin deps')
     BTCHIP = False
 
@@ -615,8 +615,8 @@ class LedgerPlugin(HW_PluginBase):
 
     def get_library_version(self):
         try:
-            import btchip
-            version = btchip.__version__
+            import navhip
+            version = navhip.__version__
         except ImportError:
             raise
         except:

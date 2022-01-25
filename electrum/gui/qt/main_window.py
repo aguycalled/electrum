@@ -1800,6 +1800,24 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         if not self.pending_invoice:
             return
         self.save_pending_invoice()
+        
+    def get_address(self):
+        addr = self.wallet.get_unused_address()
+        if addr is None:
+            if not self.wallet.is_deterministic():
+                msg = [
+                    _('No more addresses in your wallet.'),
+                    _('You are using a non-deterministic wallet, which cannot create new addresses.'),
+                    _('If you want to create new addresses, use a deterministic wallet instead.')
+                   ]
+                self.show_message(' '.join(msg))
+                return
+            if self.wallet.wallet_type != "voting":
+                if not self.question(_("Warning: The next address will not be recovered automatically if you restore your wallet from seed; you may need to add it manually.\n\nThis occurs because you have too many unused addresses in your wallet. To avoid this situation, use the existing addresses first.\n\nCreate anyway?")):
+                    return
+            addr = self.wallet.create_new_address(False)
+        return addr
+
 
     def save_pending_invoice(self):
         if not self.pending_invoice:

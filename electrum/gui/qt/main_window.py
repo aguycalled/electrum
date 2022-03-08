@@ -1105,7 +1105,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
 
         for p in self.wallet.dao["p"]:
             prop = self.wallet.dao["p"][p]
-            if not onlyAccepted or (onlyAccepted and prop["state"] == 1):
+            if not onlyAccepted or (onlyAccepted and (prop["state"] == 1 or prop["state"] == 0x10)):
                 if self.wallet.is_mine(prop["ownerAddress"]):
                     ret.append(prop)
 

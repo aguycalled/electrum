@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Parameterize
-PYTHON_VERSION=3.7.10
+PYTHON_VERSION=3.9.4
 BUILDDIR=/tmp/electrum-build
 PACKAGE=NavCash
 GIT_REPO=https://github.com/aguycalled/electrum
@@ -62,7 +62,7 @@ function DoCodeSignMaybe { # ARGS: infoName fileOrDirName
 
 
 info "Installing Python $PYTHON_VERSION"
-export PATH="~/.pyenv/bin:~/.pyenv/shims:~/Library/Python/3.7/bin:$PATH"
+export PATH="~/.pyenv/bin:~/.pyenv/shims:~/Library/Python/3.9.4/bin:$PATH"
 if [ -d "${HOME}/.pyenv" ]; then
   pyenv update
 else

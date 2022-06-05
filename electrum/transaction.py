@@ -874,7 +874,9 @@ class Transaction:
         nLocktime = int_to_hex(self._locktime, 4)
         inputs = self.inputs()
         outputs = self.outputs()
-        strdzeel = bitcoin.witness_push(self._strdzeel.encode().hex())
+        strdzeel = ""
+        if self._version >= 2:
+            strdzeel = bitcoin.witness_push(self._strdzeel.encode().hex())
 
         def create_script_sig(txin: TxInput) -> str:
             if include_sigs:

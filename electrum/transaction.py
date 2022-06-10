@@ -423,6 +423,8 @@ OPPushDataPubkey = OPPushDataGeneric(lambda x: x in (33, 65))
 SCRIPTPUBKEY_TEMPLATE_P2PKH = [opcodes.OP_DUP, opcodes.OP_HASH160,
                                OPPushDataGeneric(lambda x: x == 20),
                                opcodes.OP_EQUALVERIFY, opcodes.OP_CHECKSIG]
+SCRIPTPUBKEY_TEMPLATE_P2PK = [OPPushDataGeneric(lambda x: x == 33),
+                               opcodes.OP_CHECKSIG]
 SCRIPTPUBKEY_TEMPLATE_P2SH = [opcodes.OP_HASH160, OPPushDataGeneric(lambda x: x == 20), opcodes.OP_EQUAL]
 SCRIPTPUBKEY_TEMPLATE_WITNESS_V0 = [opcodes.OP_0, OPPushDataGeneric(lambda x: x in (20, 32))]
 SCRIPTPUBKEY_TEMPLATE_P2WPKH = [opcodes.OP_0, OPPushDataGeneric(lambda x: x == 20)]
@@ -479,6 +481,10 @@ def get_address_from_output_script(_bytes: bytes, *, net=None) -> Optional[str]:
     # p2pkh
     if match_script_against_template(decoded, SCRIPTPUBKEY_TEMPLATE_P2PKH):
         return hash160_to_p2pkh(decoded[2][1], net=net)
+
+    # p2pk
+    if match_script_against_template(decoded, SCRIPTPUBKEY_TEMPLATE_P2PK):
+        return hash160_to_p2pkh(hash_160(decoded[0][1]), net=net)
 
     # p2cs
     if match_script_against_template(decoded, SCRIPTPUBKEY_TEMPLATE_P2CS):

@@ -12,7 +12,7 @@ from electrum.bip32 import BIP32Node, convert_bip32_intpath_to_strpath
 from electrum.i18n import _
 from electrum.keystore import Hardware_KeyStore
 from electrum.transaction import Transaction, PartialTransaction, PartialTxInput, PartialTxOutput
-from electrum.wallet import Standard_Wallet
+from electrum.wallet import Standard_Wallet, Cold_Staking_Wallet
 from electrum.util import bfh, bh2u, versiontuple, UserFacingException
 from electrum.base_wizard import ScriptTypeNotSupported
 from electrum.logging import get_logger
@@ -552,7 +552,7 @@ class Ledger_KeyStore(Hardware_KeyStore):
     def show_address(self, sequence, txin_type):
         client = self.get_client()
         address_path = self.get_derivation_prefix()[2:] + "/%d/%d"%sequence
-        self.handler.show_message(_("Showing address ..."))
+        self.handler.show_message(_("Showing spending address ..."))
         segwit = is_segwit_script_type(txin_type)
         segwitNative = txin_type == 'p2wpkh'
         try:
@@ -728,7 +728,7 @@ class LedgerPlugin(HW_PluginBase):
             keystore = wallet.get_keystore()
         if not self.show_address_helper(wallet, address, keystore):
             return
-        if type(wallet) is not Standard_Wallet:
+        if type(wallet) is not Standard_Wallet and type(wallet) is not Cold_Staking_Wallet:
             keystore.handler.show_error(_('This function is only available for standard wallets when using {}.').format(self.device))
             return
         sequence = wallet.get_address_index(address)

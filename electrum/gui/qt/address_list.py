@@ -32,7 +32,7 @@ from PyQt5.QtWidgets import QAbstractItemView, QComboBox, QLabel, QMenu
 from electrum.i18n import _
 from electrum.util import block_explorer_URL, profiler
 from electrum.plugin import run_hook
-from electrum.bitcoin import is_address
+from electrum.bitcoin import is_address, get_spending_address, get_staking_address, get_voting_address
 from electrum.wallet import InternalAddressCorruption
 
 from .util import MyTreeView, MONOSPACE_FONT, ColorScheme, webopen, MySortModel
@@ -73,12 +73,15 @@ class AddressList(MyTreeView):
     class Columns(IntEnum):
         TYPE = 0
         ADDRESS = 1
-        LABEL = 2
-        COIN_BALANCE = 3
-        FIAT_BALANCE = 4
-        NUM_TXS = 5
+        ADDRESS_2 = 2
+        ADDRESS_3 = 3
+        ADDRESS_4 = 4
+        LABEL = 5
+        COIN_BALANCE = 6
+        FIAT_BALANCE = 7
+        NUM_TXS = 8
 
-    filter_columns = [Columns.TYPE, Columns.ADDRESS, Columns.LABEL, Columns.COIN_BALANCE]
+    filter_columns = [Columns.TYPE, Columns.ADDRESS, Columns.ADDRESS_2, Columns.ADDRESS_3, Columns.ADDRESS_4,Columns.LABEL, Columns.COIN_BALANCE]
 
     ROLE_SORT_ORDER = Qt.UserRole + 1000
     ROLE_ADDRESS_STR = Qt.UserRole + 1001
@@ -126,7 +129,10 @@ class AddressList(MyTreeView):
             ccy = _('Fiat')
         headers = {
             self.Columns.TYPE: _('Type'),
-            self.Columns.ADDRESS: _('Address'),
+            self.Columns.ADDRESS: _('Receiving Address'),
+            self.Columns.ADDRESS_2: _('Spending Address'),
+            self.Columns.ADDRESS_3: _('Staking Address'),
+            self.Columns.ADDRESS_4: _('Voting Address'),
             self.Columns.LABEL: _('Label'),
             self.Columns.COIN_BALANCE: _('Balance'),
             self.Columns.FIAT_BALANCE: ccy + ' ' + _('Balance'),
@@ -184,7 +190,17 @@ class AddressList(MyTreeView):
                 fiat_balance = fx.value_str(balance, rate)
             else:
                 fiat_balance = ''
-            labels = ['', address, label, balance_text, fiat_balance, "%d"%num]
+
+            sp_add = ''
+            st_add = ''
+            vot_add = ''
+
+            if self.wallet.wallet_type == 'coldstaking':
+                sp_add = get_spending_address(address)
+                st_add = get_staking_address(address)
+                if self.wallet.voting_pkh is not None:
+                    vot_add = get_voting_address(address)
+            labels = ['', address, sp_add, st_add, vot_add, label, balance_text, fiat_balance, "%d"%num]
             address_item = [QStandardItem(e) for e in labels]
             # align text and set fonts
             for i, item in enumerate(address_item):
@@ -224,6 +240,18 @@ class AddressList(MyTreeView):
             self.showColumn(self.Columns.FIAT_BALANCE)
         else:
             self.hideColumn(self.Columns.FIAT_BALANCE)
+
+        if self.wallet.wallet_type == 'coldstaking':
+            self.showColumn(self.Columns.ADDRESS_2)
+            self.showColumn(self.Columns.ADDRESS_3)
+            if self.wallet.voting_pkh is None:
+                self.hideColumn(self.Columns.ADDRESS_4)
+            else:
+                self.showColumn(self.Columns.ADDRESS_4)
+        else:
+            self.hideColumn(self.Columns.ADDRESS_2)
+            self.hideColumn(self.Columns.ADDRESS_3)
+            self.hideColumn(self.Columns.ADDRESS_4)
         self.filter()
         self.proxy.setDynamicSortFilter(True)
 

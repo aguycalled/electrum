@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QInputDialog, QLabel, QVBoxLayout, QLineEdit
 
 from electrum.i18n import _
 from electrum.plugin import hook
-from electrum.wallet import Standard_Wallet
+from electrum.wallet import Standard_Wallet, Cold_Staking_Wallet
 from electrum.gui.qt.util import WindowModalDialog
 
 from .ledger import LedgerPlugin, Ledger_Client
@@ -23,13 +23,13 @@ class Plugin(LedgerPlugin, QtPluginBase):
     @only_hook_if_libraries_available
     @hook
     def receive_menu(self, menu, addrs, wallet):
-        if type(wallet) is not Standard_Wallet:
+        if type(wallet) is not Standard_Wallet and type(wallet) is not Cold_Staking_Wallet:
             return
         keystore = wallet.get_keystore()
         if type(keystore) == self.keystore_class and len(addrs) == 1:
             def show_address():
                 keystore.thread.add(partial(self.show_address, wallet, addrs[0]))
-            menu.addAction(_("Show on Ledger"), show_address)
+            menu.addAction(_("Show spending address on Ledger"), show_address)
 
 class Ledger_Handler(QtHandlerBase):
     setup_signal = pyqtSignal()

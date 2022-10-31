@@ -3148,6 +3148,25 @@ class Voting_Wallet(Simple_Deterministic_Wallet):
         pubkeys = self.derive_pubkeys(2, 0)
         return self.pubkeys_to_address(pubkeys)
 
+    def get_public_keys_with_deriv_info(self, address: str):
+        der_suffix = [2, 0]
+        return {k.derive_pubkey(*der_suffix): (k, der_suffix)
+                for k in self.get_keystores()}
+
+    def _add_input_sig_info(self, txin, address, *, only_der_suffix):
+        self._add_txinout_derivation_info(txin, address, only_der_suffix=only_der_suffix)
+
+    def _add_txinout_derivation_info(self, txinout, address, *, only_der_suffix):
+        if not self.is_mine(address):
+            return
+        pubkey_deriv_info = self.get_public_keys_with_deriv_info(address)
+        txinout.pubkeys = sorted([pk for pk in list(pubkey_deriv_info)])
+        for pubkey in pubkey_deriv_info:
+            ks, der_suffix = pubkey_deriv_info[pubkey]
+            fp_bytes, der_full = ks.get_fp_and_derivation_to_be_used_in_partial_tx(der_suffix,
+                                                                                   only_der_suffix=only_der_suffix)
+            txinout.bip32_paths[pubkey] = (fp_bytes, der_full)
+
 
 class Cold_Staking_Wallet(Simple_Deterministic_Wallet):
     def __init__(self, db, storage, *, config):

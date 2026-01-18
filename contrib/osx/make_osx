@@ -122,6 +122,11 @@ cp "$(brew --prefix libusb)/lib/libusb-1.0.dylib" contrib/osx || fail "Could not
 info "Installing some build-time deps for compilation..."
 brew install autoconf automake libtool gettext coreutils pkgconfig
 
+info "Installing Qt for PyQt5 build..."
+brew install qt@5 || true
+export PATH="$(brew --prefix qt@5)/bin:$PATH"
+export PKG_CONFIG_PATH="$(brew --prefix qt@5)/lib/pkgconfig:$PKG_CONFIG_PATH"
+
 info "Building libsecp256k1 dylib..."
 "$CONTRIB"/make_libsecp256k1.sh || fail "Could not build libsecp"
 cp "$ROOT_FOLDER"/electrum/libsecp256k1.0.dylib "$CONTRIB"/osx

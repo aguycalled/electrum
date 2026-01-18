@@ -41,7 +41,7 @@ else
 fi
 
 info "building binary..."
-sudo docker run -it \
+sudo docker run -i \
     --name electrum-wine-builder-cont \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT":/opt/wine64/drive_c/electrum \
     --rm \

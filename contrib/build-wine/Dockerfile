@@ -34,10 +34,10 @@ RUN apt-get update -q && \
     apt-get autoremove -y && \
     apt-get clean
 
-RUN wget -qO- https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
+RUN wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - || echo "Warning: Could not add GPG key" && \
     apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' && \
     apt-get update -q && \
-    apt-get install -qy \
+    apt-get install -qy --allow-unauthenticated \
         wine-stable-amd64:amd64=6.0.0~focal-1 \
         wine-stable-i386:i386=6.0.0~focal-1 \
         wine-stable:amd64=6.0.0~focal-1 \

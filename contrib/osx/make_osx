@@ -123,7 +123,12 @@ info "Installing some build-time deps for compilation..."
 brew install autoconf automake libtool gettext coreutils pkgconfig
 
 info "Installing Qt for PyQt5 build..."
-brew install qt@5 || true
+if ! brew list qt@5 &>/dev/null; then
+    info "Qt5 not found, installing..."
+    brew install qt@5 || fail "Could not install Qt5"
+else
+    info "Qt5 already installed"
+fi
 export PATH="$(brew --prefix qt@5)/bin:$PATH"
 export PKG_CONFIG_PATH="$(brew --prefix qt@5)/lib/pkgconfig:$PKG_CONFIG_PATH"
 

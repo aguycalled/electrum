@@ -119,6 +119,8 @@ info "preparing electrum-locale."
     popd
 )
 
+info "Upgrading pip to avoid dependency resolution issues."
+"$python" -m pip install --upgrade pip==25.1.1
 
 info "Installing build dependencies."
 "$python" -m pip install --no-dependencies --no-binary :all: --no-warn-script-location \

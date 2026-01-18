@@ -120,6 +120,9 @@ info "preparing electrum-locale."
 )
 
 
+info "Upgrading pip to avoid dependency resolution issues."
+"$python" -m pip install --upgrade pip==25.1.1
+
 info "Installing build dependencies."
 "$python" -m pip install --no-dependencies --no-binary :all: --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" -r "$CONTRIB/deterministic-build/requirements-build-appimage.txt"

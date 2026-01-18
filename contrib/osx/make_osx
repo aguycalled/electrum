@@ -150,7 +150,7 @@ python3 -m pip install --no-dependencies --no-warn-script-location -Ir ./contrib
     || fail "Could not install hardware wallet requirements"
 
 info "Installing dependencies specific to binaries..."
-python3 -m pip install --no-dependencies --no-warn-script-location -Ir ./contrib/deterministic-build/requirements-binaries-mac.txt \
+python3 -m pip install --no-dependencies --only-binary PyQt5,PyQt5-Qt5,PyQt5-sip --no-warn-script-location -Ir ./contrib/deterministic-build/requirements-binaries-mac.txt \
     || fail "Could not install dependencies specific to binaries"
 
 info "Building $PACKAGE..."

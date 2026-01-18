@@ -34,15 +34,8 @@ RUN apt-get update -q && \
     apt-get autoremove -y && \
     apt-get clean
 
-RUN wget -nc https://dl.winehq.org/wine-builds/Release.key && \
-        echo "c51bcb8cc4a12abfbd7c7660eaf90f49674d15e222c262f27e6c96429111b822 Release.key" | sha256sum -c - && \
-        apt-key add Release.key && \
-        rm Release.key && \
-    wget -nc https://dl.winehq.org/wine-builds/winehq.key && \
-        echo "78b185fabdb323971d13bd329fefc8038e08559aa51c4996de18db0639a51df6 winehq.key" | sha256sum -c - && \
-        apt-key add winehq.key && \
-        rm winehq.key && \
-    apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/ && \
+RUN wget -qO- https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
+    apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' && \
     apt-get update -q && \
     apt-get install -qy \
         wine-stable-amd64:amd64=6.0.0~focal-1 \

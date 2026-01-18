@@ -6,11 +6,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN dpkg --add-architecture i386 && \
     apt-get update -q && \
     apt-get install -qy \
-        wget=1.20.3-1ubuntu1 \
-        gnupg2=2.2.19-3ubuntu2.1 \
-        dirmngr=2.2.19-3ubuntu2.1 \
-        python3-software-properties=0.98.9.2 \
-        software-properties-common=0.98.9.2 \
+        wget=1.20.3-1ubuntu2.1 \
+        gnupg2=2.2.19-3ubuntu2.5 \
+        dirmngr=2.2.19-3ubuntu2.5 \
+        python3-software-properties=0.99.9.12 \
+        software-properties-common=0.99.9.12 \
         && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
@@ -18,7 +18,7 @@ RUN dpkg --add-architecture i386 && \
 
 RUN apt-get update -q && \
     apt-get install -qy \
-        git=1:2.25.1-1ubuntu3 \
+        git=1:2.25.1-1ubuntu3.14 \
         p7zip-full=16.02+dfsg-7build1 \
         make=4.2.1-1.2 \
         mingw-w64=7.0.0-2 \

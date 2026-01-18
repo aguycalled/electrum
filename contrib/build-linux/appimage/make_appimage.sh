@@ -119,7 +119,6 @@ info "preparing electrum-locale."
     popd
 )
 
-
 info "Upgrading pip to avoid dependency resolution issues."
 "$python" -m pip install --upgrade pip==25.1.1
 

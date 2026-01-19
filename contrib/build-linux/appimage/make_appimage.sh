@@ -20,8 +20,6 @@ PYTHON_VERSION=3.7.10
 PKG2APPIMAGE_COMMIT="eb8f3acdd9f11ab19b78f5cb15daa772367daf15"
 SQUASHFSKIT_COMMIT="ae0d656efa2d0df2fcac795b6823b44462f19386"
 
-# Add safe.directory to avoid "dubious ownership" errors when running in Docker
-git config --global --add safe.directory /opt/electrum
 
 VERSION=`git describe --tags --dirty --always`
 APPIMAGE="$DISTDIR/electrum-$VERSION-x86_64.AppImage"
@@ -127,7 +125,7 @@ info "preparing electrum-locale."
 )
 
 info "Upgrading pip to avoid dependency resolution issues."
-"$python" -m pip install --upgrade pip==24.0
+"$python" -m pip install --upgrade pip==25.1.1
 
 info "Installing build dependencies."
 "$python" -m pip install --no-dependencies --no-binary :all: --no-warn-script-location \

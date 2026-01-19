@@ -5,9 +5,6 @@ set -e
 here="$(dirname "$(readlink -e "$0")")"
 test -n "$here" -a -d "$here" || exit
 
-# Add safe.directory to avoid "dubious ownership" errors when running in Docker
-git config --global --add safe.directory /opt/wine64/drive_c/electrum
-
 if [ -z "$WIN_ARCH" ] ; then
     export WIN_ARCH="win32"  # default
 fi

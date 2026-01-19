@@ -8,9 +8,6 @@ PROJECT_ROOT="$CONTRIB"/..
 PACKAGES="$PROJECT_ROOT"/packages/
 LOCALE="$PROJECT_ROOT"/electrum/locale/
 
-# Add safe.directory to avoid "dubious ownership" errors when running in Docker
-git config --global --add safe.directory /home/user/wspace/electrum
-
 . "$CONTRIB"/build_tools_util.sh
 
 if [ ! -d "$PACKAGES" ]; then

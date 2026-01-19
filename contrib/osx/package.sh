@@ -2,9 +2,7 @@
 
 set -ex
 
-# Use portable method to get absolute path (macOS readlink doesn't support -e)
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../.."
 CONTRIB="$PROJECT_ROOT/contrib"
 . "$CONTRIB"/build_tools_util.sh
 

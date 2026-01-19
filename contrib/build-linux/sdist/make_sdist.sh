@@ -8,6 +8,9 @@ CONTRIB_SDIST="$CONTRIB/build-linux/sdist"
 DISTDIR="$PROJECT_ROOT/dist"
 LOCALE="$PROJECT_ROOT/electrum/locale/"
 
+# Add safe.directory to avoid "dubious ownership" errors when running in Docker
+git config --global --add safe.directory /opt/electrum
+
 . "$CONTRIB"/build_tools_util.sh
 
 # note that at least py3.7 is needed, to have https://bugs.python.org/issue30693

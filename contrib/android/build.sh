@@ -6,7 +6,9 @@
 
 set -e
 
-PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../.."
+# Use portable method to get absolute path (macOS readlink doesn't support -e)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PROJECT_ROOT_OR_FRESHCLONE_ROOT="$PROJECT_ROOT"
 CONTRIB="$PROJECT_ROOT/contrib"
 CONTRIB_ANDROID="$CONTRIB/android"
@@ -22,8 +24,14 @@ if [ ! -z "$ELECBUILD_NOCACHE" ] ; then
 fi
 
 info "building docker image."
+# Use docker without sudo if available (e.g., in CI), otherwise fall back to sudo
+if docker info > /dev/null 2>&1; then
+    DOCKER_CMD="docker"
+else
+    DOCKER_CMD="sudo docker"
+fi
 cp "$CONTRIB/deterministic-build/requirements-build-android.txt" "$CONTRIB_ANDROID/requirements-build-android.txt"
-sudo docker build \
+$DOCKER_CMD build \
     $DOCKER_BUILD_FLAGS \
     -t electrum-android-builder-img \
     "$CONTRIB_ANDROID"
@@ -34,7 +42,7 @@ rm "$CONTRIB_ANDROID/requirements-build-android.txt"
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     info "ELECBUILD_COMMIT=$ELECBUILD_COMMIT. doing fresh clone and git checkout."
     FRESH_CLONE="$CONTRIB_ANDROID/fresh_clone/electrum" && \
-        sudo rm -rf "$FRESH_CLONE" && \
+        rm -rf "$FRESH_CLONE" && \
         umask 0022 && \
         git clone "$PROJECT_ROOT" "$FRESH_CLONE" && \
         cd "$FRESH_CLONE"
@@ -51,8 +59,8 @@ if [[ -n "$1"  && "$1" == "release" ]] ; then
 fi
 
 info "building binary..."
-mkdir --parents "$PROJECT_ROOT_OR_FRESHCLONE_ROOT"/.buildozer/.gradle
-sudo docker run -it --rm \
+mkdir -p "$PROJECT_ROOT_OR_FRESHCLONE_ROOT"/.buildozer/.gradle
+$DOCKER_CMD run -it --rm \
     --name electrum-android-builder-cont \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT":/home/user/wspace/electrum \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT"/.buildozer/.gradle:/home/user/.gradle \
@@ -63,6 +71,6 @@ sudo docker run -it --rm \
 
 # make sure resulting binary location is independent of fresh_clone
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
-    mkdir --parents "$DISTDIR/"
-    sudo cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
+    mkdir -p "$DISTDIR/"
+    cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
 fi

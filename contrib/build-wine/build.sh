@@ -6,7 +6,10 @@
 
 set -e
 
-PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../.."
+# macOS-compatible way to get the script directory (readlink -e is GNU-only)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+PROJECT_ROOT="$SCRIPT_DIR/../.."
+PROJECT_ROOT="$(cd "$PROJECT_ROOT" && pwd -P)"
 PROJECT_ROOT_OR_FRESHCLONE_ROOT="$PROJECT_ROOT"
 CONTRIB="$PROJECT_ROOT/contrib"
 CONTRIB_WINE="$CONTRIB/build-wine"
@@ -22,6 +25,7 @@ fi
 
 info "building docker image."
 sudo docker build \
+    --platform linux/amd64 \
     $DOCKER_BUILD_FLAGS \
     -t electrum-wine-builder-img \
     "$CONTRIB_WINE"
@@ -42,6 +46,7 @@ fi
 
 info "building binary..."
 sudo docker run -it \
+    --platform linux/amd64 \
     --name electrum-wine-builder-cont \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT":/opt/wine64/drive_c/electrum \
     --rm \
@@ -51,6 +56,6 @@ sudo docker run -it \
 
 # make sure resulting binary location is independent of fresh_clone
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
-    mkdir --parents "$PROJECT_ROOT/contrib/build-wine/dist/"
+    mkdir -p "$PROJECT_ROOT/contrib/build-wine/dist/"
     sudo cp -f "$FRESH_CLONE/contrib/build-wine/dist"/*.exe "$PROJECT_ROOT/contrib/build-wine/dist/"
 fi

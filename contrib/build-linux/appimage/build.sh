@@ -6,7 +6,9 @@
 
 set -e
 
-PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../../.."
+# macOS-compatible way to get the script directory (readlink -e is GNU-only)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd -P)"
 PROJECT_ROOT_OR_FRESHCLONE_ROOT="$PROJECT_ROOT"
 CONTRIB="$PROJECT_ROOT/contrib"
 CONTRIB_APPIMAGE="$CONTRIB/build-linux/appimage"
@@ -69,6 +71,6 @@ sudo docker run -it \
 
 # make sure resulting binary location is independent of fresh_clone
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
-    mkdir --parents "$DISTDIR/"
+    mkdir -p "$DISTDIR/"
     sudo cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
 fi

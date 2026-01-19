@@ -19,7 +19,8 @@ PYTHON_VERSION=3.8.8
 # Let's begin!
 set -e
 
-here="$(dirname "$(readlink -e "$0")")"
+# macOS-compatible way to get the script directory (readlink -e is GNU-only)
+here="$(cd "$(dirname "$0")" && pwd -P)"
 
 . "$CONTRIB"/build_tools_util.sh
 
@@ -138,8 +139,12 @@ info "Building PyInstaller."
     popd
     # sanity check bootloader is there:
     [[ -e "PyInstaller/bootloader/Windows-$PYINST_ARCH/runw.exe" ]] || fail "Could not find runw.exe in target dir!"
+    # Remove the PyInstaller.py script that shadows the package during pip install
+    rm -f PyInstaller.py
 ) || fail "PyInstaller build failed"
 info "Installing PyInstaller."
-$WINE_PYTHON -m pip install --no-dependencies --no-warn-script-location ./pyinstaller
+# Remove the PyInstaller.py script that shadows the package during pip install.
+rm -f "$CACHEDIR/pyinstaller/PyInstaller.py"
+$WINE_PYTHON -m pip install --no-dependencies --no-warn-script-location "$CACHEDIR/pyinstaller"
 
 info "Wine is configured."

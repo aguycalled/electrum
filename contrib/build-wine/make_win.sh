@@ -2,7 +2,8 @@
 
 set -e
 
-here="$(dirname "$(readlink -e "$0")")"
+# macOS-compatible way to get the script directory (readlink -e is GNU-only)
+here="$(cd "$(dirname "$0")" && pwd -P)"
 test -n "$here" -a -d "$here" || exit
 
 if [ -z "$WIN_ARCH" ] ; then

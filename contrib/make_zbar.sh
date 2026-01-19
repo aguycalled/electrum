@@ -59,6 +59,7 @@ info "Building $pkgname..."
                 --with-x=no \
                 --enable-video=no \
                 --with-jpeg=no"
+            export LDFLAGS="-liconv"
         else
             # linux target
             AUTOCONF_FLAGS="$AUTOCONF_FLAGS \

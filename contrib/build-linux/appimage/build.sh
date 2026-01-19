@@ -6,7 +6,9 @@
 
 set -e
 
-PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../../.."
+# Use portable method to get absolute path (macOS readlink doesn't support -e)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 PROJECT_ROOT_OR_FRESHCLONE_ROOT="$PROJECT_ROOT"
 CONTRIB="$PROJECT_ROOT/contrib"
 CONTRIB_APPIMAGE="$CONTRIB/build-linux/appimage"
@@ -45,7 +47,9 @@ if docker info > /dev/null 2>&1; then
 else
     DOCKER_CMD="sudo docker"
 fi
+# Force x86_64 platform for cross-platform compatibility (required on Apple Silicon)
 $DOCKER_CMD build \
+    --platform linux/amd64 \
     $DOCKER_BUILD_FLAGS \
     -t electrum-appimage-builder-img \
     "$CONTRIB_APPIMAGE"
@@ -66,6 +70,7 @@ fi
 
 info "building binary..."
 $DOCKER_CMD run \
+    --platform linux/amd64 \
     --name electrum-appimage-builder-cont \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT":/opt/electrum \
     --rm \
@@ -75,6 +80,6 @@ $DOCKER_CMD run \
 
 # make sure resulting binary location is independent of fresh_clone
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
-    mkdir --parents "$DISTDIR/"
+    mkdir -p "$DISTDIR/"
     cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
 fi

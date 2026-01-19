@@ -6,7 +6,9 @@
 
 set -e
 
-PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../../.."
+# Use portable method to get absolute path (macOS readlink doesn't support -e)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 PROJECT_ROOT_OR_FRESHCLONE_ROOT="$PROJECT_ROOT"
 CONTRIB="$PROJECT_ROOT/contrib"
 CONTRIB_SDIST="$CONTRIB/build-linux/sdist"
@@ -22,7 +24,15 @@ if [ ! -z "$ELECBUILD_NOCACHE" ] ; then
 fi
 
 info "building docker image."
-sudo docker build \
+# Use docker without sudo if available (e.g., in CI), otherwise fall back to sudo
+if docker info > /dev/null 2>&1; then
+    DOCKER_CMD="docker"
+else
+    DOCKER_CMD="sudo docker"
+fi
+# Force x86_64 platform for cross-platform compatibility (required on Apple Silicon)
+$DOCKER_CMD build \
+    --platform linux/amd64 \
     $DOCKER_BUILD_FLAGS \
     -t electrum-sdist-builder-img \
     "$CONTRIB_SDIST"
@@ -31,7 +41,7 @@ sudo docker build \
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     info "ELECBUILD_COMMIT=$ELECBUILD_COMMIT. doing fresh clone and git checkout."
     FRESH_CLONE="$CONTRIB_SDIST/fresh_clone/electrum" && \
-        sudo rm -rf "$FRESH_CLONE" && \
+        rm -rf "$FRESH_CLONE" && \
         umask 0022 && \
         git clone "$PROJECT_ROOT" "$FRESH_CLONE" && \
         cd "$FRESH_CLONE"
@@ -42,7 +52,8 @@ else
 fi
 
 info "building binary..."
-sudo docker run -it \
+$DOCKER_CMD run -it \
+    --platform linux/amd64 \
     --name electrum-sdist-builder-cont \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT":/opt/electrum \
     --rm \
@@ -52,6 +63,6 @@ sudo docker run -it \
 
 # make sure resulting binary location is independent of fresh_clone
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
-    mkdir --parents "$DISTDIR/"
-    sudo cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
+    mkdir -p "$DISTDIR/"
+    cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
 fi

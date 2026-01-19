@@ -11,13 +11,12 @@ export GCC_STRIP_BINARIES="1"
 
 . "$(dirname "$0")/../build_tools_util.sh"
 
+# Use portable method to get absolute path (realpath may not be available on older macOS)
+CONTRIB_OSX="$(cd "$(dirname "$0")" && pwd)"
+CONTRIB="$(cd "$CONTRIB_OSX/.." && pwd)"
+ROOT_FOLDER="$(cd "$CONTRIB/.." && pwd)"
 
-CONTRIB_OSX="$(dirname "$(realpath "$0")")"
-CONTRIB="$CONTRIB_OSX/.."
-ROOT_FOLDER="$CONTRIB/.."
-
-src_dir=$(dirname "$0")
-cd "$src_dir/../.."
+cd "$ROOT_FOLDER"
 
 
 which brew > /dev/null 2>&1 || fail "Please install brew from https://brew.sh/ to continue"

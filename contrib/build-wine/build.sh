@@ -6,7 +6,9 @@
 
 set -e
 
-PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../.."
+# Use portable method to get absolute path (macOS readlink doesn't support -e)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PROJECT_ROOT_OR_FRESHCLONE_ROOT="$PROJECT_ROOT"
 CONTRIB="$PROJECT_ROOT/contrib"
 CONTRIB_WINE="$CONTRIB/build-wine"
@@ -28,7 +30,9 @@ else
 fi
 
 info "building docker image."
+# Force x86_64 platform - Wine requires x86_64 and won't work on ARM
 $DOCKER_CMD build \
+    --platform linux/amd64 \
     $DOCKER_BUILD_FLAGS \
     -t electrum-wine-builder-img \
     "$CONTRIB_WINE"
@@ -49,6 +53,7 @@ fi
 
 info "building binary..."
 $DOCKER_CMD run -i \
+    --platform linux/amd64 \
     --name electrum-wine-builder-cont \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT":/opt/wine64/drive_c/electrum \
     --rm \

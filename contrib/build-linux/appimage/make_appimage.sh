@@ -103,25 +103,20 @@ break_legacy_easy_install
 info "preparing electrum-locale."
 (
     cd "$PROJECT_ROOT"
-    git submodule update --init --recursive || echo "Submodule update failed (may already be initialized)"
+    git submodule update --init
 
-    LOCALE_DIR="$CONTRIB/deterministic-build/electrum-locale"
-    if [ -d "$LOCALE_DIR/locale" ]; then
-        pushd "$LOCALE_DIR"
-        if ! which msgfmt > /dev/null 2>&1; then
-            fail "Please install gettext"
-        fi
-        # we want the binary to have only compiled (.mo) locale files; not source (.po) files
-        rm -rf "$PROJECT_ROOT/electrum/locale/"
-        for i in ./locale/*; do
-            dir="$PROJECT_ROOT/electrum/$i/LC_MESSAGES"
-            mkdir -p $dir
-            msgfmt --output-file="$dir/electrum.mo" "$i/electrum.po" || true
-        done
-        popd
-    else
-        info "Locale submodule not found, skipping locale generation"
+    pushd "$CONTRIB"/deterministic-build/electrum-locale
+    if ! which msgfmt > /dev/null 2>&1; then
+        fail "Please install gettext"
     fi
+    # we want the binary to have only compiled (.mo) locale files; not source (.po) files
+    rm -rf "$PROJECT_ROOT/electrum/locale/"
+    for i in ./locale/*; do
+        dir="$PROJECT_ROOT/electrum/$i/LC_MESSAGES"
+        mkdir -p $dir
+        msgfmt --output-file="$dir/electrum.mo" "$i/electrum.po" || true
+    done
+    popd
 )
 
 info "Upgrading pip to avoid dependency resolution issues."

@@ -62,33 +62,15 @@ function DoCodeSignMaybe { # ARGS: infoName fileOrDirName
 
 
 info "Installing Python $PYTHON_VERSION"
-
-# Set up pyenv - support both Homebrew and installer-based installations
-export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
-export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
-
-# Install pyenv if not present (check both Homebrew and standalone)
-if ! command -v pyenv &> /dev/null; then
-    if command -v brew &> /dev/null; then
-        info "Installing pyenv via Homebrew..."
-        brew install pyenv
-    else
-        info "Installing pyenv via installer..."
-        curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash > /dev/null 2>&1
-    fi
+export PATH="~/.pyenv/bin:~/.pyenv/shims:~/Library/Python/3.9.4/bin:$PATH"
+if [ -d "${HOME}/.pyenv" ]; then
+  pyenv update
+else
+  curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash > /dev/null 2>&1
 fi
-
-# Initialize pyenv
-eval "$(pyenv init -)" 2>/dev/null || true
-eval "$(pyenv init --path)" 2>/dev/null || true
-
-info "Installing Python $PYTHON_VERSION via pyenv..."
 PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install -s $PYTHON_VERSION && \
 pyenv global $PYTHON_VERSION || \
 fail "Unable to use Python $PYTHON_VERSION"
-
-# Verify Python is available
-python3 --version || fail "Python not found after pyenv setup"
 
 break_legacy_easy_install
 
@@ -111,8 +93,7 @@ pyinstaller --version
 
 rm -rf ./dist
 
-info "Initializing git submodules..."
-git submodule update --init --recursive || warn "Could not update submodules (may already be initialized)"
+git submodule update --init
 
 rm  -rf "$BUILDDIR" > /dev/null 2>&1
 mkdir "$BUILDDIR"
@@ -123,20 +104,15 @@ info "generating locale"
         brew install gettext
         brew link --force gettext
     fi
-    LOCALE_DIR="$CONTRIB/deterministic-build/electrum-locale"
-    if [ -d "$LOCALE_DIR/locale" ]; then
-        cd "$LOCALE_DIR"
-        # we want the binary to have only compiled (.mo) locale files; not source (.po) files
-        rm -rf "$ROOT_FOLDER/electrum/locale/"
-        for i in ./locale/*; do
-            dir="$ROOT_FOLDER/electrum/$i/LC_MESSAGES"
-            mkdir -p "$dir"
-            msgfmt --output-file="$dir/electrum.mo" "$i/electrum.po" || true
-        done
-    else
-        warn "Locale submodule not found at $LOCALE_DIR, skipping locale generation"
-    fi
-) || warn "failed generating locale (continuing anyway)"
+    cd "$CONTRIB"/deterministic-build/electrum-locale
+    # we want the binary to have only compiled (.mo) locale files; not source (.po) files
+    rm -rf "$ROOT_FOLDER/electrum/locale/"
+    for i in ./locale/*; do
+        dir="$ROOT_FOLDER/electrum/$i/LC_MESSAGES"
+        mkdir -p "$dir"
+        msgfmt --output-file="$dir/electrum.mo" "$i/electrum.po" || true
+    done
+) || fail "failed generating locale"
 
 
 info "Installing libusb..."

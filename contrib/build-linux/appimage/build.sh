@@ -39,13 +39,7 @@ if [ ! -z "$ELECBUILD_NOCACHE" ] ; then
 fi
 
 info "building docker image."
-# Use docker without sudo if available (e.g., in CI), otherwise fall back to sudo
-if docker info > /dev/null 2>&1; then
-    DOCKER_CMD="docker"
-else
-    DOCKER_CMD="sudo docker"
-fi
-$DOCKER_CMD build \
+sudo docker build \
     $DOCKER_BUILD_FLAGS \
     -t electrum-appimage-builder-img \
     "$CONTRIB_APPIMAGE"
@@ -54,7 +48,7 @@ $DOCKER_CMD build \
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     info "ELECBUILD_COMMIT=$ELECBUILD_COMMIT. doing fresh clone and git checkout."
     FRESH_CLONE="$CONTRIB_APPIMAGE/fresh_clone/electrum" && \
-        rm -rf "$FRESH_CLONE" && \
+        sudo rm -rf "$FRESH_CLONE" && \
         umask 0022 && \
         git clone "$PROJECT_ROOT" "$FRESH_CLONE" && \
         cd "$FRESH_CLONE"
@@ -65,7 +59,7 @@ else
 fi
 
 info "building binary..."
-$DOCKER_CMD run \
+sudo docker run \
     --name electrum-appimage-builder-cont \
     -v "$PROJECT_ROOT_OR_FRESHCLONE_ROOT":/opt/electrum \
     --rm \
@@ -76,5 +70,5 @@ $DOCKER_CMD run \
 # make sure resulting binary location is independent of fresh_clone
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     mkdir --parents "$DISTDIR/"
-    cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
+    sudo cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"
 fi

@@ -65,6 +65,9 @@ popd
 
 info "building NSIS installer"
 # $VERSION could be passed to the electrum.nsi script, but this would require some rewriting in the script itself.
+# Ensure Wine temp dir exists and is writable for NSIS compression.
+export TEMP="C:\\tmp"
+export TMP="C:\\tmp"
 wine "$WINEPREFIX/drive_c/Program Files (x86)/NSIS/makensis.exe" /DPRODUCT_VERSION=$VERSION electrum.nsi
 
 cd dist

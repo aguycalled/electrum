@@ -10,6 +10,10 @@ set -e
 
 . "$CONTRIB"/build_tools_util.sh
 
+# repo is mounted into the container with a different owner than the build user;
+# wildcard also covers submodule paths
+git config --global --add safe.directory '*'
+
 pushd $WINEPREFIX/drive_c/electrum
 
 VERSION=`git describe --tags --dirty --always`
@@ -116,4 +120,4 @@ EOF
     done
 )
 
-sha256sum dist/electrum*.exe
+sha256sum dist/NavCash*.exe

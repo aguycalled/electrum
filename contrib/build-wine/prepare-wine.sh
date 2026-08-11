@@ -55,8 +55,9 @@ done
 break_legacy_easy_install
 
 info "Installing build dependencies."
-$WINE_PYTHON -m pip install --no-build-isolation --no-dependencies --no-warn-script-location \
-    --cache-dir "$WINE_PIP_CACHE_DIR" -r "$CONTRIB"/deterministic-build/requirements-build-base.txt
+# bootstrap wheel first so sdist builds below have bdist_wheel available
+$WINE_PYTHON -m pip install --no-warn-script-location \
+    --cache-dir "$WINE_PIP_CACHE_DIR" pip==21.0.1 setuptools==49.6.0 wheel==0.36.2
 $WINE_PYTHON -m pip install --no-build-isolation --no-dependencies --no-binary :all: --no-warn-script-location \
     --cache-dir "$WINE_PIP_CACHE_DIR" -r "$CONTRIB"/deterministic-build/requirements-build-wine.txt
 

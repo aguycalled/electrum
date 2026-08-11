@@ -127,18 +127,22 @@ info "Installing build dependencies."
     --cache-dir "$PIP_CACHE_DIR" -r "$CONTRIB/deterministic-build/requirements-build-appimage.txt"
 
 info "installing electrum and its dependencies."
+# build deps for sdists that use setuptools_scm (e.g. importlib-metadata); with
+# --no-build-isolation pip will not fetch them on its own
+"$python" -m pip install --no-warn-script-location \
+    --cache-dir "$PIP_CACHE_DIR" "setuptools_scm[toml]==5.0.2" "toml==0.10.2"
 # note: we prefer compiling C extensions ourselves, instead of using binary wheels,
 #       hence "--no-binary :all:" flags. However, we specifically allow
 #       - PyQt5, as it's harder to build from source
 #       - cryptography, as building it would need openssl 1.1, not available on ubuntu 16.04
-"$python" -m pip install --no-dependencies --no-binary :all: --no-warn-script-location \
+"$python" -m pip install --no-dependencies --no-build-isolation --no-binary :all: --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" -r "$CONTRIB/deterministic-build/requirements.txt"
-"$python" -m pip install --no-dependencies --no-binary :all: --only-binary PyQt5,PyQt5-Qt5,cryptography --no-warn-script-location \
+"$python" -m pip install --no-dependencies --no-build-isolation --no-binary :all: --only-binary PyQt5,PyQt5-Qt5,cryptography --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" -r "$CONTRIB/deterministic-build/requirements-binaries.txt"
-"$python" -m pip install --no-dependencies --no-binary :all: --no-warn-script-location \
+"$python" -m pip install --no-dependencies --no-build-isolation --no-binary :all: --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" -r "$CONTRIB/deterministic-build/requirements-hw.txt"
 
-"$python" -m pip install --no-dependencies --no-warn-script-location \
+"$python" -m pip install --no-dependencies --no-build-isolation --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" "$PROJECT_ROOT"
 
 # was only needed during build time, not runtime

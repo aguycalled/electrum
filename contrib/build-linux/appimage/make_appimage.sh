@@ -120,7 +120,7 @@ info "preparing electrum-locale."
 )
 
 info "Upgrading pip to avoid dependency resolution issues."
-"$python" -m pip install --upgrade pip==25.1.1
+"$python" -m pip install --upgrade pip==24.0
 
 info "Installing build dependencies."
 "$python" -m pip install --no-dependencies --no-binary :all: --no-warn-script-location \
